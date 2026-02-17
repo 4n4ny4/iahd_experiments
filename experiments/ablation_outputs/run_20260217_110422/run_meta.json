@@ -1,0 +1,27 @@
+{
+  "model_name": "meta-llama/Meta-Llama-3-8B-Instruct",
+  "max_decode": 20,
+  "target_tokens": 7000,
+  "max_rows_per_task": 100,
+  "top_k_heads": 4,
+  "n_random_sets": 3,
+  "random_seed": 1234,
+  "top_heads": [
+    [
+      15,
+      30
+    ],
+    [
+      16,
+      1
+    ],
+    [
+      19,
+      3
+    ],
+    [
+      20,
+      14
+    ]
+  ]
+}
