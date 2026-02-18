@@ -374,7 +374,7 @@ def main():
     parser.add_argument("--top_k_heads", type=int, default=4, help="Top shared heads to ablate")
     parser.add_argument("--n_random_sets", type=int, default=3, help="Number of random control conditions")
     parser.add_argument("--random_seed", type=int, default=1234)
-    parser.add_argument("--output_dir", default="experiments/ablation_outputs")
+    parser.add_argument("--output_dir", default="experiments/outputs/ablation")
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)

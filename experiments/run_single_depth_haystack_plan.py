@@ -163,7 +163,7 @@ def main():
     parser.add_argument("--max_decode", type=int, default=20)
     parser.add_argument("--threshold", type=float, default=0.1)
     parser.add_argument("--target_tokens", type=int, default=7000)
-    parser.add_argument("--output_dir", default="experiments/single_depth_outputs")
+    parser.add_argument("--output_dir", default="experiments/outputs/single_depth")
     parser.add_argument("--max_rows", type=int, default=None, help="Max CSV rows to process (default: all). Use for quick tests.")
     parser.add_argument(
         "--max_rows_per_task",
