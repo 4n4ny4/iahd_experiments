@@ -8,7 +8,6 @@ from datetime import datetime
 
 import numpy as np
 import torch
-from rouge_score import rouge_scorer
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 try:
@@ -85,6 +84,52 @@ def normalize_text(text):
     if text is None:
         return ""
     return re.sub(r"\s+", " ", str(text).replace("\n", " ")).strip().lower()
+
+
+# Number normalization for value-match so "1,000" / "1000" and "eight" / "8" match.
+# Built from number words and compounds that appear in data/haystack_plan_100_per_task.csv
+# (needle_sentence) and that the model may output for numeric tasks.
+_NUMBER_WORDS = {
+    "zero": "0", "one": "1", "two": "2", "three": "3", "four": "4",
+    "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9",
+    "ten": "10", "eleven": "11", "twelve": "12", "thirteen": "13", "fourteen": "14",
+    "fifteen": "15", "sixteen": "16", "seventeen": "17", "eighteen": "18", "nineteen": "19",
+    "twenty": "20", "thirty": "30", "forty": "40", "fifty": "50",
+    "sixty": "60", "seventy": "70", "eighty": "80", "ninety": "90",
+    "hundred": "100", "thousand": "1000", "million": "1000000",
+}
+# Hyphenated compounds (e.g. twenty-one -> 21); applied first so longer forms win.
+_NUMBER_WORDS_COMPOUNDS = {
+    "twenty-one": "21", "twenty-two": "22", "twenty-three": "23", "twenty-four": "24",
+    "twenty-five": "25", "twenty-six": "26", "twenty-seven": "27", "twenty-eight": "28", "twenty-nine": "29",
+    "thirty-one": "31", "thirty-two": "32", "thirty-three": "33", "thirty-four": "34",
+    "thirty-five": "35", "thirty-six": "36", "thirty-seven": "37", "thirty-eight": "38", "thirty-nine": "39",
+    "forty-one": "41", "forty-two": "42", "forty-three": "43", "forty-four": "44",
+    "forty-five": "45", "forty-six": "46", "forty-seven": "47", "forty-eight": "48", "forty-nine": "49",
+    "fifty-one": "51", "fifty-two": "52", "fifty-three": "53", "fifty-four": "54",
+    "fifty-five": "55", "fifty-six": "56", "fifty-seven": "57", "fifty-eight": "58", "fifty-nine": "59",
+    "sixty-one": "61", "sixty-two": "62", "sixty-three": "63", "sixty-four": "64",
+    "sixty-five": "65", "sixty-six": "66", "sixty-seven": "67", "sixty-eight": "68", "sixty-nine": "69",
+    "seventy-one": "71", "seventy-two": "72", "seventy-three": "73", "seventy-four": "74",
+    "seventy-five": "75", "seventy-six": "76", "seventy-seven": "77", "seventy-eight": "78", "seventy-nine": "79",
+    "eighty-one": "81", "eighty-two": "82", "eighty-three": "83", "eighty-four": "84",
+    "eighty-five": "85", "eighty-six": "86", "eighty-seven": "87", "eighty-eight": "88", "eighty-nine": "89",
+    "ninety-one": "91", "ninety-two": "92", "ninety-three": "93", "ninety-four": "94",
+    "ninety-five": "95", "ninety-six": "96", "ninety-seven": "97", "ninety-eight": "98", "ninety-nine": "99",
+}
+
+
+def normalize_value_for_match(text):
+    """Normalize text for value-match: lowercase, collapse whitespace, strip commas, number words -> digits."""
+    if text is None:
+        return ""
+    s = normalize_text(text)
+    s = re.sub(r",", "", s)
+    for phrase, digit in _NUMBER_WORDS_COMPOUNDS.items():
+        s = re.sub(r"\b" + re.escape(phrase) + r"\b", digit, s)
+    for word, digit in _NUMBER_WORDS.items():
+        s = re.sub(r"\b" + re.escape(word) + r"\b", digit, s)
+    return s
 
 
 def retrieval_calculate(attentions, retrieval_score, inp_id, prompt_ids, needle_start, needle_end, topk=1):
@@ -197,8 +242,6 @@ def main():
             device_map="auto",
         ).eval()
 
-    scorer = rouge_scorer.RougeScorer(["rouge1"], use_stemmer=True)
-
     task_scores = {}
     task_success = {}
     task_attempts = {}
@@ -285,24 +328,40 @@ def main():
             if score is None:
                 continue
 
-            if needle_value and normalize_text(needle_value) in normalize_text(decoded):
+            value_match = bool(
+                needle_value
+                and normalize_value_for_match(needle_value) in normalize_value_for_match(decoded)
+            )
+            if value_match:
                 task_value_match[task] += 1
-
-            rouge = scorer.score(needle, decoded)["rouge1"].recall * 100
-            if rouge > 50:
                 task_scores[task].append(score)
                 task_success[task] += 1
 
     task_heads = {}
+    task_head_rankings = {}
     task_avg_scores = {}
     for task, scores_list in task_scores.items():
         if not scores_list:
             task_heads[task] = []
+            task_head_rankings[task] = []
             task_avg_scores[task] = None
             continue
         avg_scores = np.mean(np.stack(scores_list, axis=0), axis=0)
         task_avg_scores[task] = avg_scores
-        task_heads[task] = sorted([list(x) for x in head_set_from_scores(avg_scores, args.threshold)])
+        ranked_heads = []
+        for l in range(avg_scores.shape[0]):
+            for h in range(avg_scores.shape[1]):
+                score = float(avg_scores[l, h])
+                if score >= args.threshold:
+                    ranked_heads.append(
+                        {
+                            "head": [l, h],
+                            "avg_score": score,
+                        }
+                    )
+        ranked_heads.sort(key=lambda x: x["avg_score"], reverse=True)
+        task_head_rankings[task] = ranked_heads
+        task_heads[task] = sorted([h["head"] for h in ranked_heads])
 
     with open(os.path.join(run_dir, "task_heads.json"), "w") as f:
         json.dump(task_heads, f, indent=2)
@@ -315,6 +374,9 @@ def main():
 
     with open(os.path.join(run_dir, "task_value_match.json"), "w") as f:
         json.dump(task_value_match, f, indent=2)
+
+    with open(os.path.join(run_dir, "task_head_rankings.json"), "w") as f:
+        json.dump(task_head_rankings, f, indent=2)
 
     final_csv = os.path.join(run_dir, "final_experiment_rows.csv")
     with open(final_csv, "w", newline="") as f:

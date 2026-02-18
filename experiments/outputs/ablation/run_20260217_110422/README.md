@@ -1,5 +1,7 @@
 # Ablation Analysis - ROUGE-Gated Head Detection
 
+**Note:** This run used the older **shared-head** ablation (one global head set, ROUGE metric). The current pipeline does **per-task** ablation at k=1, 10, 100 with **value-match** as the primary metric and uses `task_head_rankings.json`.
+
 Run directory:
 
 - `experiments/outputs/ablation/run_20260217_110422`

@@ -1,5 +1,7 @@
 # Single-Depth Retrieval Head Experiment Findings
 
+**Note:** This run used the older **ROUGE-gated** pipeline. The current default is **value-match** gating (`run_single_depth_haystack_plan.py` now uses value match and writes `task_head_rankings.json` for per-task ablation).
+
 This README summarizes run:
 
 - `experiments/outputs/single_depth/run_20260217_095958`

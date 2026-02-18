@@ -2,7 +2,6 @@ import argparse
 import csv
 import json
 import os
-import random
 import re
 from contextlib import nullcontext
 from datetime import datetime
@@ -10,7 +9,6 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from rouge_score import rouge_scorer
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 try:
@@ -37,6 +35,52 @@ def normalize_text(text):
     if text is None:
         return ""
     return re.sub(r"\s+", " ", str(text).replace("\n", " ")).strip().lower()
+
+
+# Number normalization for value-match so "1,000" / "1000" and "eight" / "8" match.
+# Built from number words and compounds that appear in data/haystack_plan_100_per_task.csv
+# (needle_sentence) and that the model may output for numeric tasks.
+_NUMBER_WORDS = {
+    "zero": "0", "one": "1", "two": "2", "three": "3", "four": "4",
+    "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9",
+    "ten": "10", "eleven": "11", "twelve": "12", "thirteen": "13", "fourteen": "14",
+    "fifteen": "15", "sixteen": "16", "seventeen": "17", "eighteen": "18", "nineteen": "19",
+    "twenty": "20", "thirty": "30", "forty": "40", "fifty": "50",
+    "sixty": "60", "seventy": "70", "eighty": "80", "ninety": "90",
+    "hundred": "100", "thousand": "1000", "million": "1000000",
+}
+# Hyphenated compounds (e.g. twenty-one -> 21); applied first so longer forms win.
+_NUMBER_WORDS_COMPOUNDS = {
+    "twenty-one": "21", "twenty-two": "22", "twenty-three": "23", "twenty-four": "24",
+    "twenty-five": "25", "twenty-six": "26", "twenty-seven": "27", "twenty-eight": "28", "twenty-nine": "29",
+    "thirty-one": "31", "thirty-two": "32", "thirty-three": "33", "thirty-four": "34",
+    "thirty-five": "35", "thirty-six": "36", "thirty-seven": "37", "thirty-eight": "38", "thirty-nine": "39",
+    "forty-one": "41", "forty-two": "42", "forty-three": "43", "forty-four": "44",
+    "forty-five": "45", "forty-six": "46", "forty-seven": "47", "forty-eight": "48", "forty-nine": "49",
+    "fifty-one": "51", "fifty-two": "52", "fifty-three": "53", "fifty-four": "54",
+    "fifty-five": "55", "fifty-six": "56", "fifty-seven": "57", "fifty-eight": "58", "fifty-nine": "59",
+    "sixty-one": "61", "sixty-two": "62", "sixty-three": "63", "sixty-four": "64",
+    "sixty-five": "65", "sixty-six": "66", "sixty-seven": "67", "sixty-eight": "68", "sixty-nine": "69",
+    "seventy-one": "71", "seventy-two": "72", "seventy-three": "73", "seventy-four": "74",
+    "seventy-five": "75", "seventy-six": "76", "seventy-seven": "77", "seventy-eight": "78", "seventy-nine": "79",
+    "eighty-one": "81", "eighty-two": "82", "eighty-three": "83", "eighty-four": "84",
+    "eighty-five": "85", "eighty-six": "86", "eighty-seven": "87", "eighty-eight": "88", "eighty-nine": "89",
+    "ninety-one": "91", "ninety-two": "92", "ninety-three": "93", "ninety-four": "94",
+    "ninety-five": "95", "ninety-six": "96", "ninety-seven": "97", "ninety-eight": "98", "ninety-nine": "99",
+}
+
+
+def normalize_value_for_match(text):
+    """Normalize text for value-match: lowercase, collapse whitespace, strip commas, number words -> digits."""
+    if text is None:
+        return ""
+    s = normalize_text(text)
+    s = re.sub(r",", "", s)
+    for phrase, digit in _NUMBER_WORDS_COMPOUNDS.items():
+        s = re.sub(r"\b" + re.escape(phrase) + r"\b", digit, s)
+    for word, digit in _NUMBER_WORDS.items():
+        s = re.sub(r"\b" + re.escape(word) + r"\b", digit, s)
+    return s
 
 
 def insert_needle_at_depth(tokenizer, context, needle, question, depth_percent, buffer_tokens=None):
@@ -147,36 +191,41 @@ class HeadAblationHooks:
         self.handles = []
 
 
-def load_top_heads(candidate_heads_json, top_k):
-    with open(candidate_heads_json, "r") as f:
-        candidates = json.load(f)
-    top = []
-    for c in candidates[:top_k]:
-        head = c.get("head")
-        if isinstance(head, list) and len(head) == 2:
-            top.append((int(head[0]), int(head[1])))
-    return top
+def load_task_head_rankings(rankings_json_path):
+    with open(rankings_json_path, "r") as f:
+        payload = json.load(f)
 
+    task_rankings = {}
+    if isinstance(payload, dict):
+        for task, entries in payload.items():
+            parsed = []
+            for entry in entries or []:
+                head = entry.get("head") if isinstance(entry, dict) else entry
+                if isinstance(head, list) and len(head) == 2:
+                    parsed.append((int(head[0]), int(head[1])))
+            task_rankings[task] = parsed
+    elif isinstance(payload, list):
+        # Backward compatibility: global candidate list gets reused for each task.
+        global_heads = []
+        for entry in payload:
+            head = entry.get("head") if isinstance(entry, dict) else entry
+            if isinstance(head, list) and len(head) == 2:
+                global_heads.append((int(head[0]), int(head[1])))
+        for task in TASK_QUESTIONS:
+            task_rankings[task] = list(global_heads)
+    else:
+        raise ValueError(f"Unsupported ranking JSON format: {rankings_json_path}")
 
-def sample_random_head_sets(num_layers, num_heads, k, n_sets, seed, exclude):
-    rng = random.Random(seed)
-    universe = [(l, h) for l in range(num_layers) for h in range(num_heads)]
-    allowed = [x for x in universe if x not in set(exclude)]
-    if len(allowed) < k:
-        raise ValueError("Not enough heads left to sample random control sets.")
-    out = []
-    for _ in range(n_sets):
-        out.append(sorted(rng.sample(allowed, k)))
-    return out
+    return task_rankings
 
 
 def evaluate_condition(
     model,
     tokenizer,
-    scorer,
     args,
     condition_name,
     ablation_heads=None,
+    task_filter=None,
 ):
     task_attempts = {}
     task_success = {}
@@ -198,6 +247,8 @@ def evaluate_condition(
                 needle_value = row.get("needle_value", "")
                 haystack = row.get("haystack_text", "")
                 if not task or not needle or not haystack:
+                    continue
+                if task_filter is not None and task != task_filter:
                     continue
 
                 rows_seen_per_task.setdefault(task, 0)
@@ -243,11 +294,12 @@ def evaluate_condition(
                     inputs = inputs.to(model.device)
 
                 decoded = greedy_decode(model, tokenizer, inputs, args.max_decode)
-                if needle_value and normalize_text(needle_value) in normalize_text(decoded):
+                value_match = bool(
+                    needle_value
+                    and normalize_value_for_match(needle_value) in normalize_value_for_match(decoded)
+                )
+                if value_match:
                     task_value_match[task] += 1
-
-                rouge = scorer.score(needle, decoded)["rouge1"].recall * 100
-                if rouge > 50:
                     task_success[task] += 1
 
     return {
@@ -259,121 +311,139 @@ def evaluate_condition(
     }
 
 
-def summarize_conditions(results):
-    summary = {}
-    baseline = results["baseline"]
-    base_attempts = sum(baseline["task_attempts"].values())
-    base_success = sum(baseline["task_success"].values())
-    base_value = sum(baseline["task_value_match"].values())
-    base_rouge_rate = base_success / max(1, base_attempts)
-    base_value_rate = base_value / max(1, base_attempts)
-
-    summary["baseline"] = {
-        "attempts": base_attempts,
-        "rouge_success": base_success,
-        "value_match": base_value,
-        "rouge_rate": base_rouge_rate,
-        "value_rate": base_value_rate,
+def summarize_per_task_results(per_task_results, k_values):
+    summary = {
+        "k_values": k_values,
+        "per_task": {},
+        "overall_by_k": {},
     }
-    summary["conditions"] = {}
 
-    for name, res in results.items():
-        if name == "baseline":
-            continue
-        attempts = sum(res["task_attempts"].values())
-        success = sum(res["task_success"].values())
-        value = sum(res["task_value_match"].values())
-        rouge_rate = success / max(1, attempts)
-        value_rate = value / max(1, attempts)
-        summary["conditions"][name] = {
-            "attempts": attempts,
-            "rouge_success": success,
-            "value_match": value,
-            "rouge_rate": rouge_rate,
-            "value_rate": value_rate,
-            "delta_rouge_rate_vs_baseline": rouge_rate - base_rouge_rate,
-            "delta_value_rate_vs_baseline": value_rate - base_value_rate,
+    overall_attempts = {k: 0 for k in k_values}
+    overall_baseline_value = {k: 0 for k in k_values}
+    overall_ablated_value = {k: 0 for k in k_values}
+
+    for task, task_results in per_task_results.items():
+        baseline = task_results["baseline"]
+        b_attempts = sum(baseline["task_attempts"].values())
+        b_value = sum(baseline["task_success"].values())
+        b_rate = b_value / max(1, b_attempts)
+
+        task_summary = {
+            "available_heads": task_results["available_heads"],
+            "baseline": {
+                "attempts": b_attempts,
+                "value_match": b_value,
+                "value_rate": b_rate,
+            },
+            "conditions": {},
+        }
+
+        for k in k_values:
+            cond_name = f"k_{k}"
+            cond = task_results["conditions"][cond_name]
+            c_attempts = sum(cond["task_attempts"].values())
+            c_value = sum(cond["task_success"].values())
+            c_rate = c_value / max(1, c_attempts)
+            k_eff = len(cond["ablation_heads"])
+
+            task_summary["conditions"][cond_name] = {
+                "k_requested": k,
+                "k_effective": k_eff,
+                "attempts": c_attempts,
+                "value_match": c_value,
+                "value_rate": c_rate,
+                "delta_value_rate_vs_baseline": c_rate - b_rate,
+            }
+
+            overall_attempts[k] += c_attempts
+            overall_baseline_value[k] += b_value
+            overall_ablated_value[k] += c_value
+
+        summary["per_task"][task] = task_summary
+
+    for k in k_values:
+        att = max(1, overall_attempts[k])
+        base_rate = overall_baseline_value[k] / att
+        ablated_rate = overall_ablated_value[k] / att
+        summary["overall_by_k"][f"k_{k}"] = {
+            "attempts": overall_attempts[k],
+            "baseline_value_rate": base_rate,
+            "ablated_value_rate": ablated_rate,
+            "delta_value_rate_vs_baseline": ablated_rate - base_rate,
         }
 
     return summary
 
 
-def plot_ablation_summary(results, out_dir):
-    baseline = results["baseline"]
-    all_conditions = [k for k in results.keys()]
-
-    def overall_rates(res):
-        att = sum(res["task_attempts"].values())
-        suc = sum(res["task_success"].values())
-        val = sum(res["task_value_match"].values())
-        return 100 * suc / max(1, att), 100 * val / max(1, att)
-
-    rouge_rates = []
-    value_rates = []
-    labels = []
-    for name in all_conditions:
-        rr, vr = overall_rates(results[name])
-        labels.append(name)
-        rouge_rates.append(rr)
-        value_rates.append(vr)
-
-    x = np.arange(len(labels))
-    width = 0.35
-    fig, ax = plt.subplots(figsize=(max(8, len(labels) * 1.7), 5))
-    ax.bar(x - width / 2, rouge_rates, width, label="ROUGE success", color="#4C72B0")
-    ax.bar(x + width / 2, value_rates, width, label="Value match", color="#55A868")
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels, rotation=20, ha="right")
-    ax.set_ylabel("Rate (%)")
-    ax.set_title("Baseline vs Ablation Conditions")
-    ax.set_ylim(0, 100)
-    ax.legend()
-    fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "ablation_condition_overall.png"), dpi=150)
-    plt.close(fig)
-
-    tasks = sorted(baseline["task_attempts"].keys())
-    non_base = [c for c in all_conditions if c != "baseline"]
-    if not non_base:
+def plot_per_task_value_ablation(summary, out_dir):
+    tasks = sorted(summary["per_task"].keys())
+    if not tasks:
         return
+    k_values = summary["k_values"]
 
-    delta = np.zeros((len(non_base), len(tasks)))
-    for i, cond in enumerate(non_base):
+    delta = np.zeros((len(k_values), len(tasks)))
+    for i, k in enumerate(k_values):
+        key = f"k_{k}"
         for j, task in enumerate(tasks):
-            b_att = baseline["task_attempts"].get(task, 0)
-            c_att = results[cond]["task_attempts"].get(task, 0)
-            b_rate = baseline["task_success"].get(task, 0) / max(1, b_att)
-            c_rate = results[cond]["task_success"].get(task, 0) / max(1, c_att)
-            delta[i, j] = c_rate - b_rate
+            delta[i, j] = summary["per_task"][task]["conditions"][key][
+                "delta_value_rate_vs_baseline"
+            ]
 
-    fig, ax = plt.subplots(figsize=(max(11, len(tasks) * 1.1), max(4.5, len(non_base) * 1.2)))
+    fig, ax = plt.subplots(figsize=(max(11, len(tasks) * 1.1), max(4.5, len(k_values) * 1.2)))
     im = ax.imshow(delta, cmap="RdBu_r", vmin=-0.5, vmax=0.5, aspect="auto")
     ax.set_xticks(range(len(tasks)))
     ax.set_xticklabels(tasks, rotation=30, ha="right")
-    ax.set_yticks(range(len(non_base)))
-    ax.set_yticklabels(non_base)
-    ax.set_title("Delta ROUGE Success Rate vs Baseline (Ablation - Baseline)")
-    for i in range(len(non_base)):
+    ax.set_yticks(range(len(k_values)))
+    ax.set_yticklabels([f"k={k}" for k in k_values])
+    ax.set_title("Per-Task Delta Value Match Rate vs Baseline")
+    for i in range(len(k_values)):
         for j in range(len(tasks)):
             ax.text(j, i, f"{delta[i, j]:+.2f}", ha="center", va="center", fontsize=7)
-    fig.colorbar(im, ax=ax, label="Delta success rate")
+    fig.colorbar(im, ax=ax, label="Delta value match rate")
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "ablation_per_task_delta_rouge.png"), dpi=150)
+    fig.savefig(os.path.join(out_dir, "ablation_per_task_delta_value.png"), dpi=150)
+    plt.close(fig)
+
+    x = np.arange(len(k_values))
+    baseline_rates = [
+        100 * summary["overall_by_k"][f"k_{k}"]["baseline_value_rate"] for k in k_values
+    ]
+    ablated_rates = [
+        100 * summary["overall_by_k"][f"k_{k}"]["ablated_value_rate"] for k in k_values
+    ]
+    width = 0.35
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.bar(x - width / 2, baseline_rates, width, label="Baseline value match", color="#4C72B0")
+    ax.bar(x + width / 2, ablated_rates, width, label="Ablated value match", color="#55A868")
+    ax.set_xticks(x)
+    ax.set_xticklabels([f"k={k}" for k in k_values])
+    ax.set_ylabel("Rate (%)")
+    ax.set_title("Overall Value Match by Per-Task Ablation Size")
+    ax.set_ylim(0, 100)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(os.path.join(out_dir, "ablation_overall_value_by_k.png"), dpi=150)
     plt.close(fig)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--haystack_csv", required=True)
-    parser.add_argument("--candidate_heads_json", required=True, help="Path to ablation_candidates.json from analysis step")
+    parser.add_argument(
+        "--candidate_heads_json",
+        required=True,
+        help="Path to task_head_rankings.json (preferred) or legacy ablation_candidates.json",
+    )
     parser.add_argument("--model_name", default="meta-llama/Meta-Llama-3-8B-Instruct")
     parser.add_argument("--max_decode", type=int, default=20)
     parser.add_argument("--target_tokens", type=int, default=7000)
     parser.add_argument("--max_rows_per_task", type=int, default=100)
     parser.add_argument("--max_rows", type=int, default=None)
-    parser.add_argument("--top_k_heads", type=int, default=4, help="Top shared heads to ablate")
-    parser.add_argument("--n_random_sets", type=int, default=3, help="Number of random control conditions")
-    parser.add_argument("--random_seed", type=int, default=1234)
+    parser.add_argument(
+        "--ablation_k",
+        default="1,10,100",
+        help="Comma-separated per-task ablation sizes (default: 1,10,100)",
+    )
     parser.add_argument("--output_dir", default="experiments/outputs/ablation")
     args = parser.parse_args()
 
@@ -400,41 +470,55 @@ def main():
             torch_dtype=dtype,
             device_map="auto",
         ).eval()
-    scorer = rouge_scorer.RougeScorer(["rouge1"], use_stemmer=True)
 
-    top_heads = load_top_heads(args.candidate_heads_json, args.top_k_heads)
-    random_sets = sample_random_head_sets(
-        model.config.num_hidden_layers,
-        model.config.num_attention_heads,
-        len(top_heads),
-        args.n_random_sets,
-        args.random_seed,
-        exclude=top_heads,
-    )
+    k_values = [int(x.strip()) for x in args.ablation_k.split(",") if x.strip()]
+    if not k_values:
+        raise ValueError("No valid ablation k values were provided.")
 
-    conditions = [("baseline", None), ("top_shared_ablation", top_heads)]
-    for i, rand_heads in enumerate(random_sets, start=1):
-        conditions.append((f"random_ablation_{i}", rand_heads))
+    task_head_rankings = load_task_head_rankings(args.candidate_heads_json)
+    tasks = sorted(task_head_rankings.keys())
 
-    results = {}
-    for name, ablation_heads in conditions:
-        results[name] = evaluate_condition(
-            model=model,
-            tokenizer=tokenizer,
-            scorer=scorer,
-            args=args,
-            condition_name=name,
-            ablation_heads=ablation_heads,
-        )
+    per_task_results = {}
+    for task in tasks:
+        ranked_heads = task_head_rankings.get(task, [])
+        per_task_results[task] = {
+            "available_heads": len(ranked_heads),
+            "baseline": evaluate_condition(
+                model=model,
+                tokenizer=tokenizer,
+                args=args,
+                condition_name=f"{task} baseline",
+                ablation_heads=None,
+                task_filter=task,
+            ),
+            "conditions": {},
+        }
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
-    summary = summarize_conditions(results)
+        for k in k_values:
+            k_eff = min(k, len(ranked_heads))
+            ablation_heads = ranked_heads[:k_eff]
+            cond_name = f"k_{k}"
+            per_task_results[task]["conditions"][cond_name] = evaluate_condition(
+                model=model,
+                tokenizer=tokenizer,
+                args=args,
+                condition_name=f"{task} {cond_name}",
+                ablation_heads=ablation_heads,
+                task_filter=task,
+            )
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+
+    summary = summarize_per_task_results(per_task_results, k_values)
 
     with open(os.path.join(run_dir, "condition_results.json"), "w") as f:
-        json.dump(results, f, indent=2)
+        json.dump(per_task_results, f, indent=2)
     with open(os.path.join(run_dir, "summary.json"), "w") as f:
         json.dump(summary, f, indent=2)
+    with open(os.path.join(run_dir, "per_task_ablation_summary.json"), "w") as f:
+        json.dump(summary["per_task"], f, indent=2)
     with open(os.path.join(run_dir, "run_meta.json"), "w") as f:
         json.dump(
             {
@@ -442,16 +526,15 @@ def main():
                 "max_decode": args.max_decode,
                 "target_tokens": args.target_tokens,
                 "max_rows_per_task": args.max_rows_per_task,
-                "top_k_heads": args.top_k_heads,
-                "n_random_sets": args.n_random_sets,
-                "random_seed": args.random_seed,
-                "top_heads": [list(x) for x in top_heads],
+                "ablation_k": k_values,
+                "ranking_source": args.candidate_heads_json,
+                "tasks": tasks,
             },
             f,
             indent=2,
         )
 
-    plot_ablation_summary(results, run_dir)
+    plot_per_task_value_ablation(summary, run_dir)
     print(f"Ablation run saved to: {run_dir}")
 
 
