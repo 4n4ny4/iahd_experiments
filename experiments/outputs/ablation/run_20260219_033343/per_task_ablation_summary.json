@@ -1,0 +1,274 @@
+{
+  "ceo_lastname": {
+    "available_heads": 10,
+    "baseline": {
+      "attempts": 98,
+      "value_match": 56,
+      "value_rate": 0.5714285714285714
+    },
+    "conditions": {
+      "k_1": {
+        "k_requested": 1,
+        "k_effective": 1,
+        "attempts": 98,
+        "value_match": 60,
+        "value_rate": 0.6122448979591837,
+        "delta_value_rate_vs_baseline": 0.04081632653061229
+      },
+      "k_5": {
+        "k_requested": 5,
+        "k_effective": 5,
+        "attempts": 98,
+        "value_match": 41,
+        "value_rate": 0.41836734693877553,
+        "delta_value_rate_vs_baseline": -0.15306122448979587
+      },
+      "k_10": {
+        "k_requested": 10,
+        "k_effective": 10,
+        "attempts": 98,
+        "value_match": 59,
+        "value_rate": 0.6020408163265306,
+        "delta_value_rate_vs_baseline": 0.030612244897959218
+      }
+    }
+  },
+  "employees_count_full_time": {
+    "available_heads": 8,
+    "baseline": {
+      "attempts": 49,
+      "value_match": 16,
+      "value_rate": 0.32653061224489793
+    },
+    "conditions": {
+      "k_1": {
+        "k_requested": 1,
+        "k_effective": 1,
+        "attempts": 49,
+        "value_match": 15,
+        "value_rate": 0.30612244897959184,
+        "delta_value_rate_vs_baseline": -0.02040816326530609
+      },
+      "k_5": {
+        "k_requested": 5,
+        "k_effective": 5,
+        "attempts": 49,
+        "value_match": 16,
+        "value_rate": 0.32653061224489793,
+        "delta_value_rate_vs_baseline": 0.0
+      },
+      "k_10": {
+        "k_requested": 10,
+        "k_effective": 8,
+        "attempts": 49,
+        "value_match": 18,
+        "value_rate": 0.3673469387755102,
+        "delta_value_rate_vs_baseline": 0.04081632653061229
+      }
+    }
+  },
+  "employees_count_total": {
+    "available_heads": 15,
+    "baseline": {
+      "attempts": 100,
+      "value_match": 44,
+      "value_rate": 0.44
+    },
+    "conditions": {
+      "k_1": {
+        "k_requested": 1,
+        "k_effective": 1,
+        "attempts": 100,
+        "value_match": 44,
+        "value_rate": 0.44,
+        "delta_value_rate_vs_baseline": 0.0
+      },
+      "k_5": {
+        "k_requested": 5,
+        "k_effective": 5,
+        "attempts": 100,
+        "value_match": 47,
+        "value_rate": 0.47,
+        "delta_value_rate_vs_baseline": 0.02999999999999997
+      },
+      "k_10": {
+        "k_requested": 10,
+        "k_effective": 10,
+        "attempts": 100,
+        "value_match": 28,
+        "value_rate": 0.28,
+        "delta_value_rate_vs_baseline": -0.15999999999999998
+      }
+    }
+  },
+  "headquarters_state": {
+    "available_heads": 17,
+    "baseline": {
+      "attempts": 100,
+      "value_match": 57,
+      "value_rate": 0.57
+    },
+    "conditions": {
+      "k_1": {
+        "k_requested": 1,
+        "k_effective": 1,
+        "attempts": 100,
+        "value_match": 56,
+        "value_rate": 0.56,
+        "delta_value_rate_vs_baseline": -0.009999999999999898
+      },
+      "k_5": {
+        "k_requested": 5,
+        "k_effective": 5,
+        "attempts": 100,
+        "value_match": 60,
+        "value_rate": 0.6,
+        "delta_value_rate_vs_baseline": 0.030000000000000027
+      },
+      "k_10": {
+        "k_requested": 10,
+        "k_effective": 10,
+        "attempts": 100,
+        "value_match": 45,
+        "value_rate": 0.45,
+        "delta_value_rate_vs_baseline": -0.11999999999999994
+      }
+    }
+  },
+  "holder_record_amount": {
+    "available_heads": 20,
+    "baseline": {
+      "attempts": 98,
+      "value_match": 45,
+      "value_rate": 0.45918367346938777
+    },
+    "conditions": {
+      "k_1": {
+        "k_requested": 1,
+        "k_effective": 1,
+        "attempts": 98,
+        "value_match": 44,
+        "value_rate": 0.4489795918367347,
+        "delta_value_rate_vs_baseline": -0.010204081632653073
+      },
+      "k_5": {
+        "k_requested": 5,
+        "k_effective": 5,
+        "attempts": 98,
+        "value_match": 45,
+        "value_rate": 0.45918367346938777,
+        "delta_value_rate_vs_baseline": 0.0
+      },
+      "k_10": {
+        "k_requested": 10,
+        "k_effective": 10,
+        "attempts": 98,
+        "value_match": 35,
+        "value_rate": 0.35714285714285715,
+        "delta_value_rate_vs_baseline": -0.10204081632653061
+      }
+    }
+  },
+  "incorporation_state": {
+    "available_heads": 11,
+    "baseline": {
+      "attempts": 98,
+      "value_match": 92,
+      "value_rate": 0.9387755102040817
+    },
+    "conditions": {
+      "k_1": {
+        "k_requested": 1,
+        "k_effective": 1,
+        "attempts": 98,
+        "value_match": 93,
+        "value_rate": 0.9489795918367347,
+        "delta_value_rate_vs_baseline": 0.010204081632653073
+      },
+      "k_5": {
+        "k_requested": 5,
+        "k_effective": 5,
+        "attempts": 98,
+        "value_match": 93,
+        "value_rate": 0.9489795918367347,
+        "delta_value_rate_vs_baseline": 0.010204081632653073
+      },
+      "k_10": {
+        "k_requested": 10,
+        "k_effective": 10,
+        "attempts": 98,
+        "value_match": 93,
+        "value_rate": 0.9489795918367347,
+        "delta_value_rate_vs_baseline": 0.010204081632653073
+      }
+    }
+  },
+  "incorporation_year": {
+    "available_heads": 19,
+    "baseline": {
+      "attempts": 100,
+      "value_match": 69,
+      "value_rate": 0.69
+    },
+    "conditions": {
+      "k_1": {
+        "k_requested": 1,
+        "k_effective": 1,
+        "attempts": 100,
+        "value_match": 74,
+        "value_rate": 0.74,
+        "delta_value_rate_vs_baseline": 0.050000000000000044
+      },
+      "k_5": {
+        "k_requested": 5,
+        "k_effective": 5,
+        "attempts": 100,
+        "value_match": 76,
+        "value_rate": 0.76,
+        "delta_value_rate_vs_baseline": 0.07000000000000006
+      },
+      "k_10": {
+        "k_requested": 10,
+        "k_effective": 10,
+        "attempts": 100,
+        "value_match": 77,
+        "value_rate": 0.77,
+        "delta_value_rate_vs_baseline": 0.08000000000000007
+      }
+    }
+  },
+  "registrant_name": {
+    "available_heads": 1,
+    "baseline": {
+      "attempts": 99,
+      "value_match": 97,
+      "value_rate": 0.9797979797979798
+    },
+    "conditions": {
+      "k_1": {
+        "k_requested": 1,
+        "k_effective": 1,
+        "attempts": 99,
+        "value_match": 97,
+        "value_rate": 0.9797979797979798,
+        "delta_value_rate_vs_baseline": 0.0
+      },
+      "k_5": {
+        "k_requested": 5,
+        "k_effective": 1,
+        "attempts": 99,
+        "value_match": 97,
+        "value_rate": 0.9797979797979798,
+        "delta_value_rate_vs_baseline": 0.0
+      },
+      "k_10": {
+        "k_requested": 10,
+        "k_effective": 1,
+        "attempts": 99,
+        "value_match": 97,
+        "value_rate": 0.9797979797979798,
+        "delta_value_rate_vs_baseline": 0.0
+      }
+    }
+  }
+}

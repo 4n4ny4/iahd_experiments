@@ -1,0 +1,25 @@
+{
+  "model_name": "meta-llama/Meta-Llama-3-8B-Instruct",
+  "max_decode": 20,
+  "target_tokens": 7000,
+  "max_rows_per_task": 100,
+  "ablation_k": [
+    1,
+    5,
+    10
+  ],
+  "ranking_source": "experiments/outputs/single_depth/rouge_0.35/task_head_rankings.json",
+  "tasks": [
+    "ceo_lastname",
+    "employees_count_full_time",
+    "employees_count_total",
+    "headquarters_state",
+    "holder_record_amount",
+    "incorporation_state",
+    "incorporation_year",
+    "registrant_name"
+  ],
+  "skipped_tasks": [
+    "headquarters_city"
+  ]
+}

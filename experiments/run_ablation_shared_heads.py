@@ -191,6 +191,21 @@ class HeadAblationHooks:
         self.handles = []
 
 
+def build_shared_head_list(task_rankings, max_heads=10):
+    """Build top shared heads ranked by frequency across tasks. Used for zero-head fallback."""
+    head_counts = {}
+    for task, heads in task_rankings.items():
+        for h in heads:
+            head_counts[h] = head_counts.get(h, 0) + 1
+    ranked = sorted(head_counts.items(), key=lambda x: (-x[1], x[0]))
+    return [h for h, _ in ranked[:max_heads]]
+
+
+def build_global_head_ranking(task_rankings, max_heads=10):
+    """Build global top heads (by frequency across tasks) for across-task ablation."""
+    return build_shared_head_list(task_rankings, max_heads)
+
+
 def load_task_head_rankings(rankings_json_path):
     with open(rankings_json_path, "r") as f:
         payload = json.load(f)
@@ -395,13 +410,36 @@ def plot_per_task_value_ablation(summary, out_dir):
     ax.set_xticklabels(tasks, rotation=30, ha="right")
     ax.set_yticks(range(len(k_values)))
     ax.set_yticklabels([f"k={k}" for k in k_values])
-    ax.set_title("Per-Task Delta Value Match Rate vs Baseline")
+    ax.set_title("Within-Task: Delta Accuracy vs Baseline (pp)")
     for i in range(len(k_values)):
         for j in range(len(tasks)):
             ax.text(j, i, f"{delta[i, j]:+.2f}", ha="center", va="center", fontsize=7)
-    fig.colorbar(im, ax=ax, label="Delta value match rate")
+    fig.colorbar(im, ax=ax, label="Delta Accuracy (pp)")
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "ablation_per_task_delta_value.png"), dpi=150)
+    fig.savefig(os.path.join(out_dir, "ablation_within_task_delta_heatmap.png"), dpi=150)
+    plt.close(fig)
+
+    x = np.arange(len(tasks))
+    width = 0.2
+    fig, ax = plt.subplots(figsize=(max(12, len(tasks) * 1.2), 6))
+    baseline_acc = [
+        100 * summary["per_task"][t]["baseline"]["value_rate"] for t in tasks
+    ]
+    ax.bar(x - 1.5 * width, baseline_acc, width, label="Baseline", color="#4C72B0")
+    for i, k in enumerate(k_values):
+        acc = [
+            100 * summary["per_task"][t]["conditions"][f"k_{k}"]["value_rate"]
+            for t in tasks
+        ]
+        ax.bar(x + (i - 1) * width, acc, width, label=f"k={k}", color=["#55A868", "#DD8452", "#8172B2"][i % 3])
+    ax.set_xticks(x)
+    ax.set_xticklabels(tasks, rotation=30, ha="right")
+    ax.set_ylabel("Accuracy (%)")
+    ax.set_title("Within-Task: Ablating Each Task's Top 1, 5, 10 Heads")
+    ax.set_ylim(0, 100)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(os.path.join(out_dir, "ablation_within_task_accuracy.png"), dpi=150)
     plt.close(fig)
 
     x = np.arange(len(k_values))
@@ -413,16 +451,53 @@ def plot_per_task_value_ablation(summary, out_dir):
     ]
     width = 0.35
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.bar(x - width / 2, baseline_rates, width, label="Baseline value match", color="#4C72B0")
-    ax.bar(x + width / 2, ablated_rates, width, label="Ablated value match", color="#55A868")
+    ax.bar(x - width / 2, baseline_rates, width, label="Baseline", color="#4C72B0")
+    ax.bar(x + width / 2, ablated_rates, width, label="Ablated (within-task)", color="#55A868")
     ax.set_xticks(x)
     ax.set_xticklabels([f"k={k}" for k in k_values])
-    ax.set_ylabel("Rate (%)")
-    ax.set_title("Overall Value Match by Per-Task Ablation Size")
+    ax.set_ylabel("Accuracy (%)")
+    ax.set_title("Within-Task: Aggregate Accuracy Across All Tasks")
     ax.set_ylim(0, 100)
     ax.legend()
     fig.tight_layout()
-    fig.savefig(os.path.join(out_dir, "ablation_overall_value_by_k.png"), dpi=150)
+    fig.savefig(os.path.join(out_dir, "ablation_within_task_aggregate.png"), dpi=150)
+    plt.close(fig)
+
+
+def plot_across_task_accuracy(across_task_results, tasks, k_values, out_dir):
+    x = np.arange(len(k_values))
+    total_baseline_val = sum(across_task_results["baseline"][t]["value_match"] for t in tasks)
+    total_baseline_att = sum(across_task_results["baseline"][t]["attempts"] for t in tasks)
+    baseline_agg = total_baseline_val / max(1, total_baseline_att)
+    ablated_agg = []
+    for k in k_values:
+        total_val = sum(across_task_results["by_k"][k]["task_value_match"].get(t, 0) for t in tasks)
+        total_att = sum(across_task_results["by_k"][k]["task_attempts"].get(t, 0) for t in tasks)
+        ablated_agg.append(total_val / max(1, total_att))
+    width = 0.35
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.bar(
+        x - width / 2,
+        [100 * baseline_agg] * len(k_values),
+        width,
+        label="Baseline",
+        color="#4C72B0",
+    )
+    ax.bar(
+        x + width / 2,
+        [100 * r for r in ablated_agg],
+        width,
+        label="Ablated (across-task)",
+        color="#C44E52",
+    )
+    ax.set_xticks(x)
+    ax.set_xticklabels([f"k={k}" for k in k_values])
+    ax.set_ylabel("Accuracy (%)")
+    ax.set_title("Across-Task: Ablating Global Top 1, 5, 10 Heads")
+    ax.set_ylim(0, 100)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(os.path.join(out_dir, "ablation_across_task_accuracy.png"), dpi=150)
     plt.close(fig)
 
 
@@ -441,8 +516,8 @@ def main():
     parser.add_argument("--max_rows", type=int, default=None)
     parser.add_argument(
         "--ablation_k",
-        default="1,10,100",
-        help="Comma-separated per-task ablation sizes (default: 1,10,100)",
+        default="1,5,10",
+        help="Comma-separated ablation sizes (default: 1,5,10)",
     )
     parser.add_argument("--output_dir", default="experiments/outputs/ablation")
     args = parser.parse_args()
@@ -476,7 +551,14 @@ def main():
         raise ValueError("No valid ablation k values were provided.")
 
     task_head_rankings = load_task_head_rankings(args.candidate_heads_json)
-    tasks = sorted(task_head_rankings.keys())
+    all_task_names = sorted(task_head_rankings.keys())
+    tasks = sorted(t for t in all_task_names if len(task_head_rankings.get(t, [])) > 0)
+    skipped = [t for t in all_task_names if t not in tasks]
+    if skipped:
+        print(f"Skipping {len(skipped)} task(s) with no retrieval heads: {skipped}")
+    if not tasks:
+        print("No tasks with retrieval heads; nothing to ablate.")
+        return
 
     per_task_results = {}
     for task in tasks:
@@ -513,8 +595,38 @@ def main():
 
     summary = summarize_per_task_results(per_task_results, k_values)
 
+    global_heads = build_global_head_ranking(task_head_rankings, max_heads=max(max(k_values), 10))
+    across_task_results = {"baseline": {}, "by_k": {}}
+    for task in tasks:
+        baseline = per_task_results[task]["baseline"]
+        across_task_results["baseline"][task] = {
+            "attempts": sum(baseline["task_attempts"].values()),
+            "value_match": sum(baseline["task_success"].values()),
+        }
+    for k in k_values:
+        k_eff = min(k, len(global_heads))
+        ablation_heads = global_heads[:k_eff]
+        cond = evaluate_condition(
+            model=model,
+            tokenizer=tokenizer,
+            args=args,
+            condition_name=f"across-task k={k}",
+            ablation_heads=ablation_heads,
+            task_filter=None,
+        )
+        across_task_results["by_k"][k] = {
+            "task_attempts": cond["task_attempts"],
+            "task_value_match": cond["task_value_match"],
+        }
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+    plot_across_task_accuracy(across_task_results, tasks, k_values, run_dir)
+
     with open(os.path.join(run_dir, "condition_results.json"), "w") as f:
         json.dump(per_task_results, f, indent=2)
+    with open(os.path.join(run_dir, "across_task_results.json"), "w") as f:
+        json.dump(across_task_results, f, indent=2)
     with open(os.path.join(run_dir, "summary.json"), "w") as f:
         json.dump(summary, f, indent=2)
     with open(os.path.join(run_dir, "per_task_ablation_summary.json"), "w") as f:
@@ -529,6 +641,7 @@ def main():
                 "ablation_k": k_values,
                 "ranking_source": args.candidate_heads_json,
                 "tasks": tasks,
+                "skipped_tasks": skipped,
             },
             f,
             indent=2,

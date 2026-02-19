@@ -206,6 +206,98 @@ def plot_top_heads(task_heads, out_dir, top_k=20):
     plt.close(fig)
 
 
+def plot_value_match_summary(task_value_match, task_attempts, out_dir):
+    """Value match rate by task (primary metric for value-match-gated pipeline)."""
+    tasks = sorted(task_attempts.keys())
+    rates = [
+        task_value_match.get(t, 0) / max(1, task_attempts.get(t, 1)) * 100 for t in tasks
+    ]
+    counts = [task_value_match.get(t, 0) for t in tasks]
+    totals = [task_attempts.get(t, 1) for t in tasks]
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+    x = np.arange(len(tasks))
+    bars = ax.bar(x, rates, color="#55A868", alpha=0.85)
+    ax.set_ylabel("Value Match Rate (%)")
+    ax.set_title("Value Match Rate by Task (Retrieval Success)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(tasks, rotation=30, ha="right")
+    ax.set_ylim(0, 105)
+
+    for bar, c, tot in zip(bars, counts, totals):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 2,
+            f"{c}/{tot}",
+            ha="center",
+            va="bottom",
+            fontsize=8,
+        )
+    fig.tight_layout()
+    fig.savefig(os.path.join(out_dir, "value_match_by_task.png"), dpi=150)
+    plt.close(fig)
+
+
+def plot_head_score_heatmap(task_head_rankings_path, num_layers, num_heads, out_dir):
+    """Layer x head heatmap of aggregate retrieval scores across tasks."""
+    if not os.path.exists(task_head_rankings_path):
+        return
+    with open(task_head_rankings_path, "r") as f:
+        rankings = json.load(f)
+
+    matrix = np.zeros((num_layers, num_heads))
+    for task, entries in rankings.items():
+        for entry in entries or []:
+            if isinstance(entry, dict) and "head" in entry and "avg_score" in entry:
+                l, h = entry["head"]
+                s = entry["avg_score"]
+                if 0 <= l < num_layers and 0 <= h < num_heads:
+                    matrix[l, h] = max(matrix[l, h], s)
+
+    if matrix.max() == 0:
+        return
+
+    fig, ax = plt.subplots(figsize=(14, 6))
+    im = ax.imshow(matrix, cmap="YlOrRd", aspect="auto", vmin=0)
+    ax.set_xlabel("Head Index")
+    ax.set_ylabel("Layer")
+    ax.set_xticks(range(0, num_heads, 4))
+    ax.set_yticks(range(0, num_layers, 4))
+    fig.colorbar(im, ax=ax, label="Max avg retrieval score (across tasks)")
+    ax.set_title("Retrieval Head Scores by Layer and Head (Value-Match Gated)")
+    fig.tight_layout()
+    fig.savefig(os.path.join(out_dir, "head_score_heatmap.png"), dpi=150)
+    plt.close(fig)
+
+
+def plot_retrieval_head_count(task_heads, out_dir):
+    """Number of identified retrieval heads per task (0 to 25+)."""
+    tasks = sorted(task_heads.keys())
+    counts = [len(task_heads.get(t, [])) for t in tasks]
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+    x = np.arange(len(tasks))
+    colors = ["#55A868" if c > 0 else "#E8E8E8" for c in counts]
+    bars = ax.bar(x, counts, color=colors)
+    ax.set_ylabel("Number of Retrieval Heads")
+    ax.set_title("Retrieval Head Count per Task (Value-Match Gated)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(tasks, rotation=30, ha="right")
+
+    for bar, c in zip(bars, counts):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 0.2,
+            str(c),
+            ha="center",
+            va="bottom",
+            fontsize=9,
+        )
+    fig.tight_layout()
+    fig.savefig(os.path.join(out_dir, "retrieval_head_count_by_task.png"), dpi=150)
+    plt.close(fig)
+
+
 def plot_rouge_vs_value(task_success, task_attempts, task_value_match, out_dir):
     tasks = sorted(task_attempts.keys())
     rouge_rates = [task_success.get(t, 0) / max(1, task_attempts.get(t, 1)) * 100 for t in tasks]
@@ -488,7 +580,15 @@ def main():
     print_summary(task_heads, task_success, task_attempts, task_value_match, args.num_layers, args.num_heads)
 
     plot_retrieval_success_rate(task_success, task_attempts, task_value_match, plots_dir)
+    plot_value_match_summary(task_value_match, task_attempts, plots_dir)
+    plot_retrieval_head_count(task_heads, plots_dir)
     plot_head_sparsity(task_heads, args.num_layers, args.num_heads, plots_dir)
+    plot_head_score_heatmap(
+        os.path.join(args.run_dir, "task_head_rankings.json"),
+        args.num_layers,
+        args.num_heads,
+        plots_dir,
+    )
     plot_overlap_heatmap(task_heads, plots_dir)
     plot_layer_distribution(task_heads, args.num_layers, plots_dir)
     plot_top_heads(task_heads, plots_dir, top_k=args.top_k)

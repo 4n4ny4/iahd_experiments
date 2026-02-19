@@ -1,0 +1,347 @@
+[
+  {
+    "head": [
+      15,
+      30
+    ],
+    "label": "L15H30",
+    "support_count": 7,
+    "weighted_support": 2.9522448979591838,
+    "type_count": 2,
+    "priority_score": 3.802244897959184,
+    "tasks": [
+      "ceo_lastname",
+      "employees_count_full_time",
+      "employees_count_total",
+      "headquarters_state",
+      "holder_record_amount",
+      "incorporation_state",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      16,
+      1
+    ],
+    "label": "L16H1",
+    "support_count": 7,
+    "weighted_support": 2.9522448979591838,
+    "type_count": 2,
+    "priority_score": 3.802244897959184,
+    "tasks": [
+      "ceo_lastname",
+      "employees_count_full_time",
+      "employees_count_total",
+      "headquarters_state",
+      "holder_record_amount",
+      "incorporation_state",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      20,
+      14
+    ],
+    "label": "L20H14",
+    "support_count": 7,
+    "weighted_support": 2.9522448979591838,
+    "type_count": 2,
+    "priority_score": 3.802244897959184,
+    "tasks": [
+      "ceo_lastname",
+      "employees_count_full_time",
+      "employees_count_total",
+      "headquarters_state",
+      "holder_record_amount",
+      "incorporation_state",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      24,
+      27
+    ],
+    "label": "L24H27",
+    "support_count": 7,
+    "weighted_support": 2.9522448979591838,
+    "type_count": 2,
+    "priority_score": 3.802244897959184,
+    "tasks": [
+      "ceo_lastname",
+      "employees_count_full_time",
+      "employees_count_total",
+      "headquarters_state",
+      "holder_record_amount",
+      "incorporation_state",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      15,
+      1
+    ],
+    "label": "L15H1",
+    "support_count": 6,
+    "weighted_support": 2.911428571428571,
+    "type_count": 2,
+    "priority_score": 3.661428571428571,
+    "tasks": [
+      "employees_count_full_time",
+      "employees_count_total",
+      "headquarters_state",
+      "holder_record_amount",
+      "incorporation_state",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      20,
+      1
+    ],
+    "label": "L20H1",
+    "support_count": 6,
+    "weighted_support": 2.911428571428571,
+    "type_count": 2,
+    "priority_score": 3.661428571428571,
+    "tasks": [
+      "employees_count_full_time",
+      "employees_count_total",
+      "headquarters_state",
+      "holder_record_amount",
+      "incorporation_state",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      27,
+      7
+    ],
+    "label": "L27H7",
+    "support_count": 5,
+    "weighted_support": 2.727755102040816,
+    "type_count": 2,
+    "priority_score": 3.377755102040816,
+    "tasks": [
+      "employees_count_full_time",
+      "employees_count_total",
+      "headquarters_state",
+      "holder_record_amount",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      16,
+      20
+    ],
+    "label": "L16H20",
+    "support_count": 6,
+    "weighted_support": 2.1155102040816325,
+    "type_count": 2,
+    "priority_score": 2.8655102040816325,
+    "tasks": [
+      "ceo_lastname",
+      "employees_count_total",
+      "headquarters_state",
+      "holder_record_amount",
+      "incorporation_state",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      19,
+      3
+    ],
+    "label": "L19H3",
+    "support_count": 5,
+    "weighted_support": 2.07469387755102,
+    "type_count": 2,
+    "priority_score": 2.72469387755102,
+    "tasks": [
+      "employees_count_total",
+      "headquarters_state",
+      "holder_record_amount",
+      "incorporation_state",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      8,
+      1
+    ],
+    "label": "L8H1",
+    "support_count": 4,
+    "weighted_support": 1.8646938775510202,
+    "type_count": 2,
+    "priority_score": 2.41469387755102,
+    "tasks": [
+      "employees_count_total",
+      "holder_record_amount",
+      "incorporation_state",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      20,
+      23
+    ],
+    "label": "L20H23",
+    "support_count": 4,
+    "weighted_support": 1.8646938775510202,
+    "type_count": 2,
+    "priority_score": 2.41469387755102,
+    "tasks": [
+      "employees_count_total",
+      "holder_record_amount",
+      "incorporation_state",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      5,
+      8
+    ],
+    "label": "L5H8",
+    "support_count": 3,
+    "weighted_support": 1.3718367346938776,
+    "type_count": 2,
+    "priority_score": 1.8218367346938775,
+    "tasks": [
+      "ceo_lastname",
+      "employees_count_total",
+      "holder_record_amount"
+    ]
+  },
+  {
+    "head": [
+      16,
+      23
+    ],
+    "label": "L16H23",
+    "support_count": 4,
+    "weighted_support": 1.1255102040816325,
+    "type_count": 2,
+    "priority_score": 1.6755102040816325,
+    "tasks": [
+      "ceo_lastname",
+      "holder_record_amount",
+      "incorporation_state",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      22,
+      13
+    ],
+    "label": "L22H13",
+    "support_count": 2,
+    "weighted_support": 1.3310204081632653,
+    "type_count": 1,
+    "priority_score": 1.5310204081632652,
+    "tasks": [
+      "employees_count_total",
+      "holder_record_amount"
+    ]
+  },
+  {
+    "head": [
+      2,
+      21
+    ],
+    "label": "L2H21",
+    "support_count": 2,
+    "weighted_support": 1.13,
+    "type_count": 1,
+    "priority_score": 1.3299999999999998,
+    "tasks": [
+      "employees_count_total",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      27,
+      5
+    ],
+    "label": "L27H5",
+    "support_count": 3,
+    "weighted_support": 0.8018367346938775,
+    "type_count": 2,
+    "priority_score": 1.2518367346938775,
+    "tasks": [
+      "ceo_lastname",
+      "headquarters_state",
+      "holder_record_amount"
+    ]
+  },
+  {
+    "head": [
+      10,
+      14
+    ],
+    "label": "L10H14",
+    "support_count": 2,
+    "weighted_support": 0.9010204081632652,
+    "type_count": 1,
+    "priority_score": 1.1010204081632653,
+    "tasks": [
+      "holder_record_amount",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      26,
+      15
+    ],
+    "label": "L26H15",
+    "support_count": 2,
+    "weighted_support": 0.5599999999999999,
+    "type_count": 2,
+    "priority_score": 0.91,
+    "tasks": [
+      "headquarters_state",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      27,
+      6
+    ],
+    "label": "L27H6",
+    "support_count": 2,
+    "weighted_support": 0.3908163265306122,
+    "type_count": 2,
+    "priority_score": 0.7408163265306122,
+    "tasks": [
+      "ceo_lastname",
+      "incorporation_year"
+    ]
+  },
+  {
+    "head": [
+      16,
+      0
+    ],
+    "label": "L16H0",
+    "support_count": 1,
+    "weighted_support": 0.5510204081632653,
+    "type_count": 1,
+    "priority_score": 0.6510204081632652,
+    "tasks": [
+      "holder_record_amount"
+    ]
+  }
+]

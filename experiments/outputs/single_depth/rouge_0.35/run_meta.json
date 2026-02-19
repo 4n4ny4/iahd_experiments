@@ -1,0 +1,8 @@
+{
+  "model_name": "meta-llama/Meta-Llama-3-8B-Instruct",
+  "threshold": 0.1,
+  "max_decode": 20,
+  "gate": "rouge",
+  "rouge_threshold": 0.35,
+  "total_rows": 849
+}

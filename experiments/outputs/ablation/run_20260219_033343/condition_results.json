@@ -1,0 +1,934 @@
+{
+  "ceo_lastname": {
+    "available_heads": 10,
+    "baseline": {
+      "rows_scanned": 849,
+      "task_attempts": {
+        "ceo_lastname": 98
+      },
+      "task_success": {
+        "ceo_lastname": 56
+      },
+      "task_value_match": {
+        "ceo_lastname": 56
+      },
+      "ablation_heads": []
+    },
+    "conditions": {
+      "k_1": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "ceo_lastname": 98
+        },
+        "task_success": {
+          "ceo_lastname": 60
+        },
+        "task_value_match": {
+          "ceo_lastname": 60
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ]
+        ]
+      },
+      "k_5": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "ceo_lastname": 98
+        },
+        "task_success": {
+          "ceo_lastname": 41
+        },
+        "task_value_match": {
+          "ceo_lastname": 41
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            5,
+            8
+          ],
+          [
+            5,
+            9
+          ],
+          [
+            8,
+            11
+          ],
+          [
+            10,
+            18
+          ]
+        ]
+      },
+      "k_10": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "ceo_lastname": 98
+        },
+        "task_success": {
+          "ceo_lastname": 59
+        },
+        "task_value_match": {
+          "ceo_lastname": 59
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            5,
+            8
+          ],
+          [
+            5,
+            9
+          ],
+          [
+            8,
+            11
+          ],
+          [
+            10,
+            18
+          ],
+          [
+            11,
+            6
+          ],
+          [
+            16,
+            20
+          ],
+          [
+            16,
+            23
+          ],
+          [
+            19,
+            3
+          ],
+          [
+            20,
+            23
+          ]
+        ]
+      }
+    }
+  },
+  "employees_count_full_time": {
+    "available_heads": 8,
+    "baseline": {
+      "rows_scanned": 849,
+      "task_attempts": {
+        "employees_count_full_time": 49
+      },
+      "task_success": {
+        "employees_count_full_time": 16
+      },
+      "task_value_match": {
+        "employees_count_full_time": 16
+      },
+      "ablation_heads": []
+    },
+    "conditions": {
+      "k_1": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "employees_count_full_time": 49
+        },
+        "task_success": {
+          "employees_count_full_time": 15
+        },
+        "task_value_match": {
+          "employees_count_full_time": 15
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ]
+        ]
+      },
+      "k_5": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "employees_count_full_time": 49
+        },
+        "task_success": {
+          "employees_count_full_time": 16
+        },
+        "task_value_match": {
+          "employees_count_full_time": 16
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            20,
+            1
+          ],
+          [
+            15,
+            1
+          ]
+        ]
+      },
+      "k_10": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "employees_count_full_time": 49
+        },
+        "task_success": {
+          "employees_count_full_time": 18
+        },
+        "task_value_match": {
+          "employees_count_full_time": 18
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            20,
+            1
+          ],
+          [
+            15,
+            1
+          ],
+          [
+            27,
+            7
+          ],
+          [
+            20,
+            14
+          ],
+          [
+            20,
+            23
+          ]
+        ]
+      }
+    }
+  },
+  "employees_count_total": {
+    "available_heads": 15,
+    "baseline": {
+      "rows_scanned": 849,
+      "task_attempts": {
+        "employees_count_total": 100
+      },
+      "task_success": {
+        "employees_count_total": 44
+      },
+      "task_value_match": {
+        "employees_count_total": 44
+      },
+      "ablation_heads": []
+    },
+    "conditions": {
+      "k_1": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "employees_count_total": 100
+        },
+        "task_success": {
+          "employees_count_total": 44
+        },
+        "task_value_match": {
+          "employees_count_total": 44
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ]
+        ]
+      },
+      "k_5": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "employees_count_total": 100
+        },
+        "task_success": {
+          "employees_count_total": 47
+        },
+        "task_value_match": {
+          "employees_count_total": 47
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            20,
+            14
+          ],
+          [
+            15,
+            1
+          ]
+        ]
+      },
+      "k_10": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "employees_count_total": 100
+        },
+        "task_success": {
+          "employees_count_total": 28
+        },
+        "task_value_match": {
+          "employees_count_total": 28
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            20,
+            14
+          ],
+          [
+            15,
+            1
+          ],
+          [
+            20,
+            1
+          ],
+          [
+            27,
+            7
+          ],
+          [
+            8,
+            1
+          ],
+          [
+            2,
+            21
+          ],
+          [
+            16,
+            20
+          ]
+        ]
+      }
+    }
+  },
+  "headquarters_state": {
+    "available_heads": 17,
+    "baseline": {
+      "rows_scanned": 849,
+      "task_attempts": {
+        "headquarters_state": 100
+      },
+      "task_success": {
+        "headquarters_state": 57
+      },
+      "task_value_match": {
+        "headquarters_state": 57
+      },
+      "ablation_heads": []
+    },
+    "conditions": {
+      "k_1": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "headquarters_state": 100
+        },
+        "task_success": {
+          "headquarters_state": 56
+        },
+        "task_value_match": {
+          "headquarters_state": 56
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ]
+        ]
+      },
+      "k_5": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "headquarters_state": 100
+        },
+        "task_success": {
+          "headquarters_state": 60
+        },
+        "task_value_match": {
+          "headquarters_state": 60
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            16,
+            20
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            15,
+            1
+          ]
+        ]
+      },
+      "k_10": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "headquarters_state": 100
+        },
+        "task_success": {
+          "headquarters_state": 45
+        },
+        "task_value_match": {
+          "headquarters_state": 45
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            16,
+            20
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            15,
+            1
+          ],
+          [
+            20,
+            14
+          ],
+          [
+            20,
+            1
+          ],
+          [
+            27,
+            5
+          ],
+          [
+            27,
+            7
+          ],
+          [
+            26,
+            15
+          ]
+        ]
+      }
+    }
+  },
+  "holder_record_amount": {
+    "available_heads": 20,
+    "baseline": {
+      "rows_scanned": 849,
+      "task_attempts": {
+        "holder_record_amount": 98
+      },
+      "task_success": {
+        "holder_record_amount": 45
+      },
+      "task_value_match": {
+        "holder_record_amount": 45
+      },
+      "ablation_heads": []
+    },
+    "conditions": {
+      "k_1": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "holder_record_amount": 98
+        },
+        "task_success": {
+          "holder_record_amount": 44
+        },
+        "task_value_match": {
+          "holder_record_amount": 44
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ]
+        ]
+      },
+      "k_5": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "holder_record_amount": 98
+        },
+        "task_success": {
+          "holder_record_amount": 45
+        },
+        "task_value_match": {
+          "holder_record_amount": 45
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            15,
+            1
+          ],
+          [
+            20,
+            1
+          ]
+        ]
+      },
+      "k_10": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "holder_record_amount": 98
+        },
+        "task_success": {
+          "holder_record_amount": 35
+        },
+        "task_value_match": {
+          "holder_record_amount": 35
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            15,
+            1
+          ],
+          [
+            20,
+            1
+          ],
+          [
+            27,
+            7
+          ],
+          [
+            20,
+            14
+          ],
+          [
+            19,
+            3
+          ],
+          [
+            16,
+            20
+          ],
+          [
+            8,
+            1
+          ]
+        ]
+      }
+    }
+  },
+  "incorporation_state": {
+    "available_heads": 11,
+    "baseline": {
+      "rows_scanned": 849,
+      "task_attempts": {
+        "incorporation_state": 98
+      },
+      "task_success": {
+        "incorporation_state": 92
+      },
+      "task_value_match": {
+        "incorporation_state": 92
+      },
+      "ablation_heads": []
+    },
+    "conditions": {
+      "k_1": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "incorporation_state": 98
+        },
+        "task_success": {
+          "incorporation_state": 93
+        },
+        "task_value_match": {
+          "incorporation_state": 93
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ]
+        ]
+      },
+      "k_5": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "incorporation_state": 98
+        },
+        "task_success": {
+          "incorporation_state": 93
+        },
+        "task_value_match": {
+          "incorporation_state": 93
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            15,
+            1
+          ],
+          [
+            16,
+            20
+          ]
+        ]
+      },
+      "k_10": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "incorporation_state": 98
+        },
+        "task_success": {
+          "incorporation_state": 93
+        },
+        "task_value_match": {
+          "incorporation_state": 93
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            15,
+            1
+          ],
+          [
+            16,
+            20
+          ],
+          [
+            8,
+            1
+          ],
+          [
+            20,
+            1
+          ],
+          [
+            20,
+            14
+          ],
+          [
+            20,
+            23
+          ],
+          [
+            19,
+            3
+          ]
+        ]
+      }
+    }
+  },
+  "incorporation_year": {
+    "available_heads": 19,
+    "baseline": {
+      "rows_scanned": 849,
+      "task_attempts": {
+        "incorporation_year": 100
+      },
+      "task_success": {
+        "incorporation_year": 69
+      },
+      "task_value_match": {
+        "incorporation_year": 69
+      },
+      "ablation_heads": []
+    },
+    "conditions": {
+      "k_1": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "incorporation_year": 100
+        },
+        "task_success": {
+          "incorporation_year": 74
+        },
+        "task_value_match": {
+          "incorporation_year": 74
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ]
+        ]
+      },
+      "k_5": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "incorporation_year": 100
+        },
+        "task_success": {
+          "incorporation_year": 76
+        },
+        "task_value_match": {
+          "incorporation_year": 76
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            15,
+            1
+          ],
+          [
+            16,
+            20
+          ]
+        ]
+      },
+      "k_10": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "incorporation_year": 100
+        },
+        "task_success": {
+          "incorporation_year": 77
+        },
+        "task_value_match": {
+          "incorporation_year": 77
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            24,
+            27
+          ],
+          [
+            15,
+            1
+          ],
+          [
+            16,
+            20
+          ],
+          [
+            20,
+            1
+          ],
+          [
+            20,
+            14
+          ],
+          [
+            8,
+            1
+          ],
+          [
+            19,
+            3
+          ],
+          [
+            20,
+            23
+          ]
+        ]
+      }
+    }
+  },
+  "registrant_name": {
+    "available_heads": 1,
+    "baseline": {
+      "rows_scanned": 849,
+      "task_attempts": {
+        "registrant_name": 99
+      },
+      "task_success": {
+        "registrant_name": 97
+      },
+      "task_value_match": {
+        "registrant_name": 97
+      },
+      "ablation_heads": []
+    },
+    "conditions": {
+      "k_1": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "registrant_name": 99
+        },
+        "task_success": {
+          "registrant_name": 97
+        },
+        "task_value_match": {
+          "registrant_name": 97
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ]
+        ]
+      },
+      "k_5": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "registrant_name": 99
+        },
+        "task_success": {
+          "registrant_name": 97
+        },
+        "task_value_match": {
+          "registrant_name": 97
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ]
+        ]
+      },
+      "k_10": {
+        "rows_scanned": 849,
+        "task_attempts": {
+          "registrant_name": 99
+        },
+        "task_success": {
+          "registrant_name": 97
+        },
+        "task_value_match": {
+          "registrant_name": 97
+        },
+        "ablation_heads": [
+          [
+            15,
+            30
+          ]
+        ]
+      }
+    }
+  }
+}

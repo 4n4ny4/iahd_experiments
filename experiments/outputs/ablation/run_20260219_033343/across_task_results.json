@@ -1,0 +1,110 @@
+{
+  "baseline": {
+    "ceo_lastname": {
+      "attempts": 98,
+      "value_match": 56
+    },
+    "employees_count_full_time": {
+      "attempts": 49,
+      "value_match": 16
+    },
+    "employees_count_total": {
+      "attempts": 100,
+      "value_match": 44
+    },
+    "headquarters_state": {
+      "attempts": 100,
+      "value_match": 57
+    },
+    "holder_record_amount": {
+      "attempts": 98,
+      "value_match": 45
+    },
+    "incorporation_state": {
+      "attempts": 98,
+      "value_match": 92
+    },
+    "incorporation_year": {
+      "attempts": 100,
+      "value_match": 69
+    },
+    "registrant_name": {
+      "attempts": 99,
+      "value_match": 97
+    }
+  },
+  "by_k": {
+    "1": {
+      "task_attempts": {
+        "registrant_name": 99,
+        "headquarters_city": 100,
+        "headquarters_state": 100,
+        "incorporation_state": 98,
+        "incorporation_year": 100,
+        "employees_count_total": 100,
+        "holder_record_amount": 98,
+        "employees_count_full_time": 49,
+        "ceo_lastname": 98
+      },
+      "task_value_match": {
+        "registrant_name": 97,
+        "headquarters_city": 63,
+        "headquarters_state": 56,
+        "incorporation_state": 93,
+        "incorporation_year": 74,
+        "employees_count_total": 44,
+        "holder_record_amount": 44,
+        "employees_count_full_time": 15,
+        "ceo_lastname": 60
+      }
+    },
+    "5": {
+      "task_attempts": {
+        "registrant_name": 99,
+        "headquarters_city": 100,
+        "headquarters_state": 100,
+        "incorporation_state": 98,
+        "incorporation_year": 100,
+        "employees_count_total": 100,
+        "holder_record_amount": 98,
+        "employees_count_full_time": 49,
+        "ceo_lastname": 98
+      },
+      "task_value_match": {
+        "registrant_name": 72,
+        "headquarters_city": 61,
+        "headquarters_state": 61,
+        "incorporation_state": 93,
+        "incorporation_year": 76,
+        "employees_count_total": 38,
+        "holder_record_amount": 33,
+        "employees_count_full_time": 12,
+        "ceo_lastname": 57
+      }
+    },
+    "10": {
+      "task_attempts": {
+        "registrant_name": 99,
+        "headquarters_city": 100,
+        "headquarters_state": 100,
+        "incorporation_state": 98,
+        "incorporation_year": 100,
+        "employees_count_total": 100,
+        "holder_record_amount": 98,
+        "employees_count_full_time": 49,
+        "ceo_lastname": 98
+      },
+      "task_value_match": {
+        "registrant_name": 67,
+        "headquarters_city": 58,
+        "headquarters_state": 60,
+        "incorporation_state": 93,
+        "incorporation_year": 77,
+        "employees_count_total": 37,
+        "holder_record_amount": 33,
+        "employees_count_full_time": 15,
+        "ceo_lastname": 50
+      }
+    }
+  }
+}

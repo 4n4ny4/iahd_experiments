@@ -16,6 +16,11 @@ except ImportError:
     def tqdm(iterable, **kwargs):
         return iterable
 
+try:
+    from rouge_score import rouge_scorer
+except ImportError:
+    rouge_scorer = None
+
 
 TASK_QUESTIONS = {
     "registrant_name": "What is the registrant name?",
@@ -216,11 +221,27 @@ def main():
         default=100,
         help="Max CSV rows to process per task (default: 100).",
     )
+    parser.add_argument(
+        "--gate",
+        choices=["value", "rouge", "hybrid"],
+        default="rouge",
+        help="Gate for which rows contribute to retrieval head scores: value=value match only, "
+        "rouge=ROUGE-1 recall vs needle > threshold, hybrid=value match AND rouge > threshold (default: rouge).",
+    )
+    parser.add_argument(
+        "--rouge_threshold",
+        type=float,
+        default=0.5,
+        help="ROUGE-1 recall threshold for rouge/hybrid gate (default: 0.5, i.e. 50%%).",
+    )
     args = parser.parse_args()
+
+    if args.gate in ("rouge", "hybrid") and rouge_scorer is None:
+        raise RuntimeError("--gate rouge/hybrid requires rouge-score package. Install with: pip install rouge-score")
 
     os.makedirs(args.output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    run_dir = os.path.join(args.output_dir, f"run_{timestamp}")
+    run_dir = os.path.abspath(os.path.join(args.output_dir, f"run_{timestamp}"))
     os.makedirs(run_dir, exist_ok=True)
 
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
@@ -246,7 +267,12 @@ def main():
     task_success = {}
     task_attempts = {}
     task_value_match = {}
+    task_rouge_ok = {}
     task_rows_seen = {}
+
+    rouge_scorer_obj = None
+    if args.gate in ("rouge", "hybrid"):
+        rouge_scorer_obj = rouge_scorer.RougeScorer(["rouge1"], use_stemmer=False)
     target_tasks = set(TASK_QUESTIONS.keys())
     capped_target_tasks = set()
     total_rows = 0
@@ -271,6 +297,7 @@ def main():
             task_success.setdefault(task, 0)
             task_attempts.setdefault(task, 0)
             task_value_match.setdefault(task, 0)
+            task_rouge_ok.setdefault(task, 0)
             task_rows_seen.setdefault(task, 0)
             if task_rows_seen[task] >= args.max_rows_per_task:
                 continue
@@ -332,15 +359,34 @@ def main():
                 needle_value
                 and normalize_value_for_match(needle_value) in normalize_value_for_match(decoded)
             )
+            rouge_ok = False
+            if rouge_scorer_obj is not None:
+                rouge_result = rouge_scorer_obj.score(needle, decoded)
+                rouge_recall = rouge_result["rouge1"].recall
+                rouge_ok = rouge_recall >= args.rouge_threshold
+                if rouge_ok:
+                    task_rouge_ok[task] += 1
+
             if value_match:
                 task_value_match[task] += 1
+
+            if args.gate == "value":
+                gate_pass = value_match
+            elif args.gate == "rouge":
+                gate_pass = rouge_ok
+            else:
+                gate_pass = value_match and rouge_ok
+
+            if gate_pass:
                 task_scores[task].append(score)
                 task_success[task] += 1
 
+    os.makedirs(run_dir, exist_ok=True)
     task_heads = {}
     task_head_rankings = {}
     task_avg_scores = {}
-    for task, scores_list in task_scores.items():
+    for task in TASK_QUESTIONS:
+        scores_list = task_scores.get(task, [])
         if not scores_list:
             task_heads[task] = []
             task_head_rankings[task] = []
@@ -375,6 +421,10 @@ def main():
     with open(os.path.join(run_dir, "task_value_match.json"), "w") as f:
         json.dump(task_value_match, f, indent=2)
 
+    if task_rouge_ok:
+        with open(os.path.join(run_dir, "task_rouge_ok.json"), "w") as f:
+            json.dump(task_rouge_ok, f, indent=2)
+
     with open(os.path.join(run_dir, "task_head_rankings.json"), "w") as f:
         json.dump(task_head_rankings, f, indent=2)
 
@@ -399,6 +449,8 @@ def main():
                 "model_name": args.model_name,
                 "threshold": args.threshold,
                 "max_decode": args.max_decode,
+                "gate": args.gate,
+                "rouge_threshold": args.rouge_threshold if args.gate in ("rouge", "hybrid") else None,
                 "total_rows": total_rows,
             },
             f,
